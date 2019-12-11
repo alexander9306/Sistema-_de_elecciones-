@@ -1,0 +1,15 @@
+
+  RewriteEngine On
+
+  RewriteBase /final
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond $1 !^(index\.php|img|css|js|install|robots\.txt|favicon\.ico|update\.php)
+  RewriteRule ^(.*)$ index.php?/$1 [L]
+  #Recordar quitar el juntar para que funcione
+
+
+
+
+  ErrorDocument 404 /index.php
+
