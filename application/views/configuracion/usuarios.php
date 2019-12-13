@@ -1,24 +1,18 @@
-<?php 
-$cedula='';
-$usuario= core_persona::cargarPersona($usuario->idusuario);
-if($usuario){
-    $cedula=$usuario->cedula;
-}
-?>
 
 <form method="post" action="" id="busqueda" class="pt-5">
     <h2 class="pb-2">Usuarios</h2>
     <p  class="pb-2">Agrega usuarios o administradores</p>
     <div class="md-form col-5">
         <i class="fas fa-user prefix"></i>
-        <input type="text" id="input" class="form-control" value='<?=$cedula?>'  name="cedula" type="number" maxlength="11" placeholder="">
+        <input type="text" id="input" class="form-control" value='<?=$usuario->cedula?>'  name="cedula" type="number" maxlength="11" placeholder="">
         <label for="input">Cedula:</label>
-        <p id='msg' class="text-danger"><?= $error ?></p>
     </div>
     <div class="md-form col-5">
         <i class="fas fa-lock prefix"></i>
-        <input type="password" maxlength="20" id="" class="form-control"  name="clave" placeholder="">
+        <input type="password" maxlength="20" id="" class="form-control" requiered  name="clave" placeholder="">
         <label for="input">Clave:</label>
+        <p id='msg' class="text-danger"><?= $error ?></p>
+        <?= validation_errors('<span class="text-danger" >', '<br></span>'); ?>
     </div>
     <div class="row pb-4">
     <div class="col-1">
@@ -58,12 +52,11 @@ if($usuario){
         <table id="dtabla" class="table table-striped table-bordered table-sm" cellspacing="0" class="table">
             <thead class='black white-text'>
                 <tr class="text-light">
-                    <th>Foto</th>
-                    <th>Nombre</th>
-                    <th>Apellido</th>
+                    <th>#</th>
+                    <th>Cedula</th>
                     <th>Rol</th>
                     <th>Editar</th>
-                    <th></th>
+                    <th>Eliminar</th>
                 </tr>
             </thead>
             <tbody>
@@ -71,22 +64,14 @@ if($usuario){
                 $ps = core_usuario::cargarUsuarios();
                 if(count($ps)>0){
                 foreach ($ps as $p) {
-                    $persona=core_persona::cargarPersona($p->idusuario);
                     $rol=core_rol::cargarRol($p->idrol);
-
-                    $foto=htmlspecialchars($persona->foto);
-                    $nombre=htmlspecialchars($persona->nombre);
-                    $apellido=htmlspecialchars($persona->apellido);
                     $rol=htmlspecialchars($rol->nombre);
-
+                    $cedula=htmlspecialchars($p->cedula);
                     $urlEdit = base_url("configuracion/editarUsuario/{$p->idusuario}");
-                    $urlBorrar = base_url("configuracion/borrarUsuario/{$p->idusuario}");
+                    $urlBorrar = base_url("configuracion/borrarUsuario/{$p->cedula}");
                     echo "<tr value='{$p->idusuario}'> 
-                            <td>
-                            <img src='{$foto}' width='80' height='80' alt='...' class='img-thumbnail'>
-                            </td> 
-                            <td>{$nombre}</td> 
-                            <td>{$apellido}</td> 
+                            <td>{$p->idusuario}</td> 
+                            <td>{$cedula}</td> 
                             <td>{$rol}</td> 
                             <td> 
                                 <a href='{$urlEdit}' class=' text-success'>Editar</a>

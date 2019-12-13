@@ -156,50 +156,84 @@ class Configuracion extends CI_Controller{
     }
 
     public function usuarios(){
+        $usuario=core_usuario::nuevoUsuario();
         $error='';
-        $usuario = core_usuario::nuevoUsuario();
-        if($_POST){
-            $id=core_persona::cargarPersonaId($_POST['cedula']);
-            if($id){
-                $usuario->idusuario=$id;
-                $usuario->clave=$_POST['clave'];
-                $usuario->idrol=$_POST['idrol'];
-                core_usuario::guardarUsuario($usuario);
-                redirect('/configuracion/usuarios');
-            }else{
-                $error="La persona no esta en el padron electoral";
-            }
+         // Load form validation library
+         $this->load->library('form_validation');
+         $this->form_validation->set_rules('cedula','cedula','trim|required|numeric|max_length[11]|min_length[11]|callback_comprobarCedula',array(
+             'required'=>'El campo %s es requerido',
+             'min_length'=>'El campo %s debe tener un minimo de 11 caracteres',
+            'numeric'=>'El campo %s debe ser numerico'
+            ));
+         $this->form_validation->set_rules('clave','clave','required|max_length[20]',array('required'=>'El campo %s es requerido'));
+         if ($this->form_validation->run() == false)
+        {
+            $this->load->view('plantillas/encabezado');
+            $this->load->view('configuracion/menu');
+            $this->load->view('configuracion/usuarios',['usuario'=>$usuario,'error'=>$error]);
+            $this->load->view('plantillas/pie');
         }
-        $this->load->view('plantillas/encabezado');
-        $this->load->view('configuracion/menu');
-        $this->load->view('configuracion/usuarios',['usuario'=>$usuario,'error'=>$error]);
-        $this->load->view('plantillas/pie');
+        else{
+            $usuario = array(
+                'cedula'=>$this->input->post('cedula'),
+                'clave'=>$this->input->post('clave'),
+                'idrol'=>$this->input->post('idrol')
+            );
+            core_usuario::guardarUsuario($usuario);
+            redirect('/configuracion/usuarios');
+        }
     }
-    public function editarUsuario($id){
+    public function editarUsuario($id=''){
         $error='';
-        if($_POST){
-            $usuario = core_usuario::nuevoUsuario();
-            $usuario->idusuario=$id;
-            $usuario->clave=$_POST['clave'];
-            $usuario->idrol=$_POST['idrol'];
+        $usuario=core_usuario::cargarUsuario($id);
+        
+        if($id==0 || $id==''){
+            redirect('');
+        }
+
+        $this->load->library('form_validation');
+        $this->form_validation->set_rules('cedula','cedula','trim|required|numeric|max_length[11]|min_length[11]|callback_comprobarCedula',array('required'=>'El campo %s es requerido',
+        'numeric'=>'El campo %s debe ser numerico',
+        'min_length'=>'El campo %s debe tener un minimo de 11 caracteres'));
+        $this->form_validation->set_rules('clave','clave','required|max_length[20]',array('required'=>'El campo %s es requerido'));
+         if ($this->form_validation->run() == false)
+        {
+            $this->load->view('plantillas/encabezado');
+            $this->load->view('configuracion/menu');
+            $this->load->view('configuracion/usuarios',['usuario'=>$usuario,'error'=>$error]);
+            $this->load->view('plantillas/pie');
+        }
+        else{
+            $usuario = array(
+                'cedula'=>$this->input->post('cedula'),
+                'clave'=>$this->input->post('clave'),
+                'idrol'=>$this->input->post('idrol')
+            );
             core_usuario::actualizarUsuario($id,$usuario);
             redirect('/configuracion/usuarios');
         }
-        if($id==0){
-            redirect('');
-        }
-        $usuario=core_usuario::cargarUsuario($id);
-        $this->load->view('plantillas/encabezado');
-        $this->load->view('configuracion/menu');
-        $this->load->view('configuracion/usuarios',['usuario'=>$usuario,'error'=>$error]);
-        $this->load->view('plantillas/pie');
     }
-    public function borrarUsuario($id){
+    public function comprobarCedula($cedula){
+        $this->load->library('form_validation');
+        $ruta = $cedula;
+        $direccion = "http://173.249.49.169:88/api/test/consulta/" . $ruta;
+        $json = file_get_contents($direccion);
+        $datos = json_decode($json, true);
+        if (!$datos['Ok']) {
+            $this->form_validation->set_message('comprobarCedula', 'Hubo un problema al confirmar su cedula');
+            return false;
+        } else {
+           return true;
+        }  
+    }
+
+    public function borrarUsuario($cedula){
+        $persona=core_persona::cargarPersonaCed($cedula);
         if($_POST){
-            core_usuario::borrarUsuario($id);
+            core_usuario::borrarUsuario($cedula);
             redirect('/configuracion/usuarios');
         }
-        $this->load->view('configuracion/borrarPersona',['id'=>$id]);
+        $this->load->view('configuracion/borrarPersona',['id'=>$persona->idpersona]);
     }
  
 }

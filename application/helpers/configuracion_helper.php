@@ -18,7 +18,6 @@ function asgInput($nombre, $label, $value = '', $disable='', $type='text')
     return $xml;
 }
 
-
 class core_eleccion{
     static function cargarElecciones(){
         $CI=& get_instance();
@@ -137,6 +136,17 @@ class core_persona{
     static function cargarPersona($id){
         $CI=& get_instance();
         $CI->db->where('idpersona',$id);
+        $rs = $CI->db->get('persona');
+        $rs = $rs->result();
+
+        if(count($rs)>0){
+            return $rs[0];
+        }
+        return false;
+    }
+    static function cargarPersonaCed($cedula){
+        $CI=& get_instance();
+        $CI->db->where('cedula',$cedula);
         $rs = $CI->db->get('persona');
         $rs = $rs->result();
 
@@ -281,6 +291,7 @@ class core_usuario{
     static function nuevoUsuario(){
         $usuario = new stdClass();
         $usuario->idusuario='';
+        $usuario->cedula='';
         $usuario->clave='';
         $usuario->idrol='';
 
@@ -303,14 +314,37 @@ class core_usuario{
         $CI=& get_instance();
         $CI->db->insert('usuario',$usuario);
     }
-    static function borrarUsuario($id){
+    static function borrarUsuario($cedula){
         $CI=& get_instance();
-        $CI->db->where('idusuario',$id);
+        $CI->db->where('cedula',$cedula);
         $CI->db->delete('usuario');
     }
     static function cargarUsuario($id){
         $CI=& get_instance();
         $CI->db->where('idusuario',$id);
+        $rs = $CI->db->get('usuario');
+        $rs = $rs->result();
+
+        if(count($rs)>0){
+            return $rs[0];
+        }
+        return false;
+    }
+    static function cargarUsuarioCed($cedula){
+        $CI=& get_instance();
+        $CI->db->where('cedula',$cedula);
+        $rs = $CI->db->get('usuario');
+        $rs = $rs->result();
+
+        if(count($rs)>0){
+            return $rs[0];
+        }
+        return false;
+    }
+    static function verificarUsuario($usuario){
+        $CI=& get_instance();
+        $CI->db->where('cedula',$usuario['cedula']);
+        $CI->db->where('clave',$usuario['clave']);
         $rs = $CI->db->get('usuario');
         $rs = $rs->result();
 

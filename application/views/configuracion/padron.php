@@ -73,18 +73,18 @@
             }
         }
         function validateInput(){
-        msg= document.getElementById('msg');
-        input = document.getElementById('input').value;
-        if(input.length<11 || input.length>11){
-            msg.innerHTML='La cedula debe tener 11 caracteres';
+            msg= document.getElementById('msg');
+            input = document.getElementById('input').value;
+            if(input.length<11 || input.length>11){
+                msg.innerHTML='La cedula debe tener 11 caracteres';
+            }
+            else if(!/^\d+$/.test(input)){
+                msg.innerHTML='La cedula debe tener solo numeros';
+            }
+            else{
+                document.getElementById('busqueda').submit();
+            }
         }
-        else if(!/^\d+$/.test(input)){
-            msg.innerHTML='La cedula debe tener solo numeros';
-        }
-        else{
-            document.getElementById('busqueda').submit();
-        }
-    }
 
  
 </script>
